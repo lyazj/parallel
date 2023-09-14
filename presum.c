@@ -10,7 +10,7 @@
 typedef struct { num_t *arr; int n; } presum_seq_args_t;
 static void *presum_seq(void *v_args)
 {
-  presum_seq_args_t *args = v_args;
+  presum_seq_args_t *args = (presum_seq_args_t *)v_args;
   num_t *arr = args->arr; int n = args->n;
   num_t t = 0;
   for(int i = 0; i < n; ++i) {
@@ -27,7 +27,7 @@ static void *presum_seq(void *v_args)
 typedef struct { num_t *arr; int n; num_t num; } add_seq_args_t;
 static void *add_seq(void *v_args)
 {
-  add_seq_args_t *args = v_args;
+  add_seq_args_t *args = (add_seq_args_t *)v_args;
   num_t *arr = args->arr; int n = args->n; num_t num = args->num;
   for(int i = 0; i < n; ++i) {
     arr[i] += num;
@@ -42,9 +42,9 @@ static void *add_seq(void *v_args)
 void presum_thr(num_t *arr, int n, int nthr)
 {
   // Allocate memory for working threads and arguments.
-  pthread_t *thr = malloc(nthr * sizeof(pthread_t));
-  presum_seq_args_t *ps_args = malloc(nthr * sizeof(presum_seq_args_t));
-  add_seq_args_t *as_args = malloc((nthr - 1) * sizeof(add_seq_args_t));
+  pthread_t *thr = (pthread_t *)malloc(nthr * sizeof(pthread_t));
+  presum_seq_args_t *ps_args = (presum_seq_args_t *)malloc(nthr * sizeof(presum_seq_args_t));
+  add_seq_args_t *as_args = (add_seq_args_t *)malloc((nthr - 1) * sizeof(add_seq_args_t));
   if(thr == NULL || ps_args == NULL || as_args == NULL) abort();
 
   // Compute bunch size for each thread.

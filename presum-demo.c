@@ -8,7 +8,7 @@ void presum_thr(num_t *arr, int n, int nthr);
 int main(void)
 {
   int n = 10000;
-  num_t *arr = malloc(n * sizeof(num_t));
+  num_t *arr = (num_t *)malloc(n * sizeof(num_t));
   if(arr == NULL) abort();
 
   // Compare threading presum to real values.
