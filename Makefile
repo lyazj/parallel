@@ -1,15 +1,14 @@
 CFLAGS = -g -O3
 LDFLAGS =
+DEMOS = $(patsubst %.c,%,$(shell ls *-demo.c))
 
-all: presum-demo
+all: $(DEMOS)
 
 clean:
-	$(RM) *.o presum-demo
+	$(RM) *.o $(DEMOS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(filter %.c,$^) -o $@ -c
 
-%: %.o
+%-demo: %-demo.o %.o
 	$(CXX) $(filter %.o,$^) -o $@ $(LDFLAGS)
-
-presum-demo: presum-demo.o presum.o
