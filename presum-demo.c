@@ -39,5 +39,6 @@ int main(void)
   }
   printf("Maximum difference: [%d] %lg\n", di, (double)d);
 
+  free(arr);
   return 0;
 }
