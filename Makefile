@@ -1,5 +1,5 @@
 CFLAGS = -g -O3 -mavx2
-LDFLAGS = -mavx2
+LDFLAGS = -mavx2 -lmpi
 DEMOS = $(patsubst %.c,%,$(shell ls *-demo.c))
 
 all: $(DEMOS)
