@@ -1,0 +1,110 @@
+\documentclass{ctexart}
+\usepackage{amsmath,amssymb}
+
+\title{快速傅里叶变换}
+\author{未命名作者}
+
+\begin{document}
+
+\maketitle
+
+首先考察连续函数 $f: [0, 2\pi] \to \mathbb R$ 的傅里叶变换。设
+\begin{equation}
+  f(x) = \sum_{k = -\infty}^{+\infty} a_k\mathrm e^{\mathrm ikx}
+\end{equation}
+其中的系数 $a_k$ 可以由积分
+\begin{equation}
+  \int_0^{2\pi}f(x)\mathrm e^{\mathrm -ik^\prime x}\mathrm dx
+  =
+  \sum_{k = -\infty}^{+\infty} a_k\int_0^{2\pi}\mathrm e^{\mathrm i(k - k^\prime)x}\mathrm dx
+  =
+  \sum_{k = -\infty}^{+\infty} a_k \cdot 2\pi\delta_{kk^\prime}
+  =
+  2\pi a_k^{\prime}
+\end{equation}
+推出：
+\begin{equation}
+  a_k = \frac{1}{2\pi}\int_0^{2\pi}f(x)\mathrm e^{-ikx}\mathrm dx
+\end{equation}
+离散化近似得到：
+\begin{equation}
+  a_k = \frac{1}{n}\sum_{j = 0}^{n - 1}f(2j\pi / n)\mathrm e^{-2\mathrm ijk\pi/n}
+\end{equation}
+定义：
+\begin{equation}
+  y_{j,n} = f(2j\pi / n),\ \omega_{k,n} = \mathrm e^{2\mathrm ik\pi / n}
+\end{equation}
+我们有：
+\begin{equation}
+  a_k = \frac{1}{n}\sum_{j = 0}^{n - 1}y_{j,n}\omega_{k,n}^{-j}
+\end{equation}
+再将求和式中的 $k$ 截断至 $0, 1, \dots, n - 1$，即得到 DFT：
+\begin{equation}
+  y_{j,n} = \sum_{k = 0}^{n - 1}a_{k,n}\omega_{k,n}^j,\
+  a_{k,n} = \frac{1}{n}\sum_{j = 0}^{n - 1}y_{j,n}\omega_{k,n}^{-j}
+\end{equation}
+习惯取 $c_{k,n} = na_{k,n}$，我们有如下关系：
+\begin{equation}
+  y_{j,n} = \frac{1}{n}\sum_{k = 0}^{n - 1}c_{k,n}\omega_{k,n}^j,\
+  c_{k,n} = \sum_{j = 0}^{n - 1}y_{j,n}\omega_{k,n}^{-j}
+\end{equation}
+验证一下：
+\begin{equation}
+  \begin{split}
+    \frac{1}{n}\sum_{k = 0}^{n - 1}c_{k,n}\omega_{k,n}^j
+    &=
+    \frac{1}{n}\sum_{k = 0}^{n - 1}\sum_{j^\prime = 0}^{n - 1}y_{j^\prime,n}\omega_{k,n}^{j - j^\prime}
+    =
+    \frac{1}{n}\sum_{j^\prime = 0}^{n - 1}y_{j^\prime,n}\sum_{k = 0}^{n - 1}\omega_{k,n}^{j - j^\prime}
+    \\&=
+    \frac{1}{n}\sum_{j^\prime = 0}^{n - 1}y_{j^\prime,n}n\delta_{jj^\prime}
+    =
+    y_{j,n}
+  \end{split}
+\end{equation}
+这验证了离散傅里叶变换的等式是精确成立的。下面推导各系数 $c_{k,n}$ 之间的递推关系。令 $n \to 2n$，我们有：
+\begin{equation}
+  \begin{split}
+    c_{k,2n}
+    &=
+    \sum_{j = 0}^{2n - 1}y_{j,2n}\omega_{k,2n}^{-j}
+    =
+    \sum_{j = 0}^{n - 1}y_{2j,2n}\omega_{k,2n}^{-2j}
+    +
+    \sum_{j = 0}^{n - 1}y_{2j + 1,2n}\omega_{k,2n}^{-2j - 1}
+    \\&=
+    \sum_{j = 0}^{n - 1}y_{2j,2n}\omega_{k,n}^{-j}
+    +
+    \omega_{k,2n}^{-1}\sum_{j = 0}^{n - 1}y_{2j + 1,2n}\omega_{k,n}^{-j}
+    \\c_{k + n,2n}
+    &=
+    \sum_{j = 0}^{2n - 1}y_{j,2n}\omega_{k + n,2n}^{-j}
+    =
+    \sum_{j = 0}^{n - 1}y_{2j,2n}\omega_{k + n,2n}^{-2j}
+    +
+    \sum_{j = 0}^{n - 1}y_{2j + 1,2n}\omega_{k + n,2n}^{-2j - 1}
+    \\&=
+    \sum_{j = 0}^{n - 1}y_{2j,2n}\omega_{k,n}^{-j}
+    -
+    \omega_{k,2n}^{-1}\sum_{j = 0}^{n - 1}y_{2j + 1,2n}\omega_{k,n}^{-j}
+  \end{split}
+\end{equation}
+观察上式不难看出，$\sum_{j = 0}^{n - 1}y_{2j,2n}\omega_{k,n}^{-j}$ 为 $y_0, y_2, \dots, y_{2n - 2}$ 的第 $k$ 个 DFT 系数，$\sum_{j = 0}^{n - 1}y_{2j + 1,2n}\omega_{k,n}^{-j}$ 为 $y_1, y_3, \dots, y_{2n - 1}$ 的第 $k$ 个 DFT 系数。
+
+下面使用自顶向下的思路推导 FFT 算法。首先，设输入数组的规模为 $n = 2^{N}\ (N \geq 1)$，最后一步状态转移前数组的前后两半部分分别存储上面的两组系数，则最后一步的状态转移方程可以写做：
+\begin{equation}
+  f(k, N) = \begin{cases}
+    f(k, N - 1) + \omega_{k,n}^{-1}f(k + n/2, N - 1), & k < n/2, \\
+    f(k - n/2, N - 1) + \omega_{k,n}^{-1}f(k, N - 1), & k \geq n/2. \\
+  \end{cases}
+\end{equation}
+类似地，根据递归原理，第 $M\ (M \geq 1)$ 步的状态转移方程可以写做：
+\begin{equation}
+  f(k, M) = \begin{cases}
+    f(k, M - 1) + \omega_{k,2^M}^{-1}f(k + 2^{M-1}, M - 1), & k\,\%\,2^M < 2^{M-1}, \\
+    f(k - 2^{M-1}, M - 1) + \omega_{k,2^M}^{-1}f(k, M - 1), & k\,\%\,2^M \geq 2^{M-1}. \\
+  \end{cases}
+\end{equation}
+下面确定 $y_0, y_1, \dots, y_{n - 1}$ 的初始摆放顺序。在 $N$ 位二进制代数中，指标 $j$ 的最低位决定了 $y_j$ 在最后一次状态转移前只贡献左/右半部分的数组元素，次低位（如有）决定了 $y_j$ 在倒数第二次状态转移前只贡献左/右半部分的左/右半部分的数组元素，以此类推，指标 $j$ 的 $N$ 位 bit swap 值应为它在初始数组中的位置。进一步可以得到，如果初始时 $y$ 值完全按照顺序排列，则将指标 $j$ 与指标 $\mathrm{bitswap}(j, N)$ 处的元素交换一次（不能重复）后，便可得到初始状态 $\{f(j, 0)\}_{j = 0}^{n - 1}$。
+
+\end{document}
